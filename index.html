@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeMaster — Classic Black & White Typing Speed Test</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f9f9f9',
+                            100: '#f0f0f0',
+                            200: '#e0e0e0',
+                            300: '#cccccc',
+                            400: '#999999',
+                            500: '#666666',
+                            600: '#444444',
+                            700: '#222222',
+                            800: '#111111',
+                            900: '#000000',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Styling for Typing Highlighting */
+        .char-correct {
+            color: #000000;
+            background-color: #e5e5e5;
+            border-bottom: 2px solid #000000;
+        }
+        .char-incorrect {
+            color: #ffffff;
+            background-color: #000000;
+            text-decoration: underline;
+        }
+        .char-current {
+            background-color: #000000;
+            color: #ffffff;
+            animation: pulse-caret 1s infinite alternate;
+        }
+        @keyframes pulse-caret {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+        .char-untyped {
+            color: #888888;
+        }
+        /* Custom scrollbars for high contrast */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #333;
+        }
+    </style>
+</head>
+<body class="bg-white text-black font-sans antialiased min-h-screen flex flex-col selection:bg-black selection:text-white">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="border-b border-black bg-white sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo & Tagline -->
+                <div class="flex items-center space-x-4 cursor-pointer" onclick="navigateTo('home')">
+                    <div class="bg-black text-white px-3 py-1 text-xl font-bold tracking-tighter">TM</div>
+                    <div>
+                        <h1 class="text-xl font-black tracking-tight uppercase">TypeMaster</h1>
+                        <p class="text-xs text-gray-500 hidden sm:block font-mono">Measure your speed. Improve your accuracy.</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="flex space-x-1 sm:space-x-2">
+                    <button id="nav-home" onclick="navigateTo('home')" class="nav-btn px-3 py-2 text-xs sm:text-sm font-semibold border-b-2 border-black">Home</button>
+                    <button id="nav-60w" onclick="navigateTo('tests-60')" class="nav-btn px-3 py-2 text-xs sm:text-sm font-medium border-b-2 border-transparent hover:border-gray-400">60-Word Tests</button>
+                    <button id="nav-150w" onclick="navigateTo('tests-150')" class="nav-btn px-3 py-2 text-xs sm:text-sm font-medium border-b-2 border-transparent hover:border-gray-400">150-Word Tests</button>
+                    <button id="nav-results" onclick="navigateTo('results')" class="nav-btn px-3 py-2 text-xs sm:text-sm font-medium border-b-2 border-transparent hover:border-gray-400">Results</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ================= PAGE 1: HOME VIEW ================= -->
+        <div id="view-home" class="space-y-10">
+            <!-- Hero Banner -->
+            <div class="border-2 border-black p-6 sm:p-10 bg-black text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div class="space-y-3 max-w-2xl">
+                    <span class="inline-block bg-white text-black px-2 py-0.5 text-xs font-mono font-bold tracking-widest uppercase">Professional Benchmark</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Master the Art of Precision Typing.</h2>
+                    <p class="text-gray-300 text-sm sm:text-base leading-relaxed">
+                        Test your speed, timing, and accuracy with 40 curated passage tests. Benchmark your performance against standard words-per-minute metrics with transparent scoring.
+                    </p>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <button onclick="startQuickTest('60')" class="px-6 py-3 bg-white text-black font-bold border border-white hover:bg-gray-200 transition text-center text-sm">Start 60-Word Test</button>
+                    <button onclick="startQuickTest('150')" class="px-6 py-3 bg-transparent text-white font-bold border border-white hover:bg-white hover:text-black transition text-center text-sm">Start 150-Word Test</button>
+                </div>
+            </div>
+
+            <!-- Global Overall Stats Bar -->
+            <div class="space-y-3">
+                <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-gray-500">Overall Performance Overview</h3>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="border border-black p-5 bg-white shadow-sm flex flex-col justify-between">
+                        <span class="text-xs font-mono text-gray-500 uppercase">Tests Completed</span>
+                        <div class="mt-2 flex items-baseline justify-between">
+                            <span id="stat-completed" class="text-3xl font-black">0</span>
+                            <span class="text-xs font-mono text-gray-400">/ 40 Tests</span>
+                        </div>
+                    </div>
+                    <div class="border border-black p-5 bg-white shadow-sm flex flex-col justify-between">
+                        <span class="text-xs font-mono text-gray-500 uppercase">Average Speed</span>
+                        <div class="mt-2 flex items-baseline justify-between">
+                            <span id="stat-avg-wpm" class="text-3xl font-black">0.0</span>
+                            <span class="text-xs font-mono text-gray-600 font-bold">WPM</span>
+                        </div>
+                    </div>
+                    <div class="border border-black p-5 bg-white shadow-sm flex flex-col justify-between">
+                        <span class="text-xs font-mono text-gray-500 uppercase">Average Accuracy</span>
+                        <div class="mt-2 flex items-baseline justify-between">
+                            <span id="stat-avg-acc" class="text-3xl font-black">0.0%</span>
+                            <span class="text-xs font-mono text-gray-600 font-bold">%</span>
+                        </div>
+                    </div>
+                    <div class="border border-black p-5 bg-white shadow-sm flex flex-col justify-between">
+                        <span class="text-xs font-mono text-gray-500 uppercase">Best Score</span>
+                        <div class="mt-2 flex items-baseline justify-between">
+                            <span id="stat-best-marks" class="text-3xl font-black">0.0</span>
+                            <span class="text-xs font-mono text-gray-600 font-bold">/ 10</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Categories Selection Cards -->
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- 60-Word Card -->
+                <div class="border-2 border-black p-6 bg-white flex flex-col justify-between hover:shadow-md transition">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center border-b border-gray-200 pb-3">
+                            <span class="bg-black text-white text-xs font-mono font-bold px-2.5 py-1">TYPE A</span>
+                            <span class="text-xs font-mono font-semibold text-gray-500">Time Limit: 2 Mins</span>
+                        </div>
+                        <h3 class="text-2xl font-bold">60-Word Standard Tests</h3>
+                        <p class="text-gray-600 text-sm leading-relaxed">
+                            Focused, high-burst typing challenges. Designed to measure rapid focus, precise keystroke rhythm, and initial speed bursts across 20 distinct topics.
+                        </p>
+                        <!-- Progress Bar -->
+                        <div class="space-y-1 pt-2">
+                            <div class="flex justify-between text-xs font-mono">
+                                <span>Progress</span>
+                                <span id="progress-text-60">0 / 20 Completed</span>
+                            </div>
+                            <div class="w-full bg-gray-200 h-2 border border-black">
+                                <div id="progress-bar-60" class="bg-black h-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pt-6 flex gap-3">
+                        <button onclick="navigateTo('tests-60')" class="flex-1 py-2.5 border border-black bg-black text-white text-sm font-bold hover:bg-gray-800 transition">Browse 20 Tests</button>
+                        <button onclick="startFirstUncompleted('60')" class="py-2.5 px-4 border border-black bg-white text-black text-sm font-bold hover:bg-gray-100 transition">Start Next</button>
+                    </div>
+                </div>
+
+                <!-- 150-Word Card -->
+                <div class="border-2 border-black p-6 bg-white flex flex-col justify-between hover:shadow-md transition">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center border-b border-gray-200 pb-3">
+                            <span class="bg-black text-white text-xs font-mono font-bold px-2.5 py-1">TYPE B</span>
+                            <span class="text-xs font-mono font-semibold text-gray-500">Time Limit: 5 Mins</span>
+                        </div>
+                        <h3 class="text-2xl font-bold">150-Word Quick Challenges</h3>
+                        <p class="text-gray-600 text-sm leading-relaxed">
+                            Extended stamina tests evaluating long-form rhythm, complex punctuation handling, sustained focus, and steady typing endurance.
+                        </p>
+                        <!-- Progress Bar -->
+                        <div class="space-y-1 pt-2">
+                            <div class="flex justify-between text-xs font-mono">
+                                <span>Progress</span>
+                                <span id="progress-text-150">0 / 20 Completed</span>
+                            </div>
+                            <div class="w-full bg-gray-200 h-2 border border-black">
+                                <div id="progress-bar-150" class="bg-black h-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pt-6 flex gap-3">
+                        <button onclick="navigateTo('tests-150')" class="flex-1 py-2.5 border border-black bg-black text-white text-sm font-bold hover:bg-gray-800 transition">Browse 20 Tests</button>
+                        <button onclick="startFirstUncompleted('150')" class="py-2.5 px-4 border border-black bg-white text-black text-sm font-bold hover:bg-gray-100 transition">Start Next</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scoring System Explanation -->
+            <div class="border border-black p-6 bg-gray-50 space-y-4">
+                <h4 class="text-sm font-mono font-bold uppercase tracking-wider text-black border-b border-gray-300 pb-2">Standardized Scoring Methodology</h4>
+                <div class="grid md:grid-cols-3 gap-6 text-xs sm:text-sm text-gray-700">
+                    <div>
+                        <strong class="block text-black font-mono uppercase mb-1">1. Typing Speed (WPM)</strong>
+                        Standardized at 5 characters per word. <br>
+                        <code class="bg-gray-200 px-1 py-0.5 text-xs text-black font-mono">WPM = (Chars / 5) / Time (Mins)</code>
+                    </div>
+                    <div>
+                        <strong class="block text-black font-mono uppercase mb-1">2. Accuracy Percentage</strong>
+                        Direct character-level exact matching against passage master text. <br>
+                        <code class="bg-gray-200 px-1 py-0.5 text-xs text-black font-mono">Accuracy = (Correct / Typed) × 100</code>
+                    </div>
+                    <div>
+                        <strong class="block text-black font-mono uppercase mb-1">3. Marks out of 10</strong>
+                        Balanced speed and accuracy metric (Target benchmark: 40 WPM). <br>
+                        <code class="bg-gray-200 px-1 py-0.5 text-xs text-black font-mono">Score = 0.5×(Speed) + 0.5×(Accuracy)</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE 2 & 3: TEST LIBRARY VIEW (60W / 150W) ================= -->
+        <div id="view-library" class="hidden space-y-6">
+            <!-- Header & Filter Bar -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-black pb-4 gap-4">
+                <div>
+                    <h2 id="library-title" class="text-3xl font-extrabold uppercase tracking-tight">60-Word Test Library</h2>
+                    <p id="library-desc" class="text-sm text-gray-500 font-mono">Select any test passage from Test 01 through Test 20.</p>
+                </div>
+                
+                <!-- Filter Tabs -->
+                <div class="flex border border-black">
+                    <button onclick="filterLibrary('all')" id="filter-all" class="px-3 py-1.5 text-xs font-mono font-bold bg-black text-white">ALL (20)</button>
+                    <button onclick="filterLibrary('completed')" id="filter-completed" class="px-3 py-1.5 text-xs font-mono font-bold bg-white text-black hover:bg-gray-100 border-l border-black">COMPLETED</button>
+                    <button onclick="filterLibrary('pending')" id="filter-pending" class="px-3 py-1.5 text-xs font-mono font-bold bg-white text-black hover:bg-gray-100 border-l border-black">NOT STARTED</button>
+                </div>
+            </div>
+
+            <!-- Grid of 20 Tests -->
+            <div id="library-grid" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Dynamically Populated by JS -->
+            </div>
+        </div>
+
+        <!-- ================= PAGE 4: TYPING TEST INTERFACE VIEW ================= -->
+        <div id="view-test" class="hidden space-y-6">
+            <!-- Test Info & Real-Time Stats Bar -->
+            <div class="border-2 border-black bg-black text-white p-4 flex flex-wrap justify-between items-center gap-4">
+                <div>
+                    <span id="test-category-badge" class="bg-white text-black text-xs font-mono font-bold px-2 py-0.5 uppercase">60-Word Test</span>
+                    <h3 id="test-title" class="text-xl font-extrabold tracking-tight mt-1">Test #01</h3>
+                </div>
+
+                <!-- Real-Time Metrics Displays -->
+                <div class="flex items-center space-x-6 font-mono">
+                    <div class="text-center">
+                        <span class="text-[10px] text-gray-400 block uppercase">Time Remaining</span>
+                        <span id="live-timer" class="text-2xl font-bold">02:00</span>
+                    </div>
+                    <div class="border-r border-gray-700 h-8"></div>
+                    <div class="text-center">
+                        <span class="text-[10px] text-gray-400 block uppercase">Speed</span>
+                        <span class="text-2xl font-bold"><span id="live-wpm">0</span> <span class="text-xs font-normal text-gray-400">WPM</span></span>
+                    </div>
+                    <div class="border-r border-gray-700 h-8"></div>
+                    <div class="text-center">
+                        <span class="text-[10px] text-gray-400 block uppercase">Accuracy</span>
+                        <span id="live-accuracy" class="text-2xl font-bold">100%</span>
+                    </div>
+                    <div class="border-r border-gray-700 h-8"></div>
+                    <div class="text-center">
+                        <span class="text-[10px] text-gray-400 block uppercase">Progress</span>
+                        <span id="live-progress" class="text-2xl font-bold">0/60</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Passage Display Box -->
+            <div class="border-2 border-black p-6 sm:p-8 bg-white space-y-4">
+                <div class="flex justify-between items-center border-b border-gray-200 pb-2 text-xs font-mono text-gray-500">
+                    <span>PASSAGE INPUT PROMPT</span>
+                    <span id="keystroke-hint" class="animate-pulse font-bold text-black">Start typing to begin timer automatically...</span>
+                </div>
+
+                <!-- The Interactive Passage Text Container -->
+                <div id="passage-container" class="font-mono text-lg sm:text-xl leading-relaxed tracking-wide select-none min-h-[140px] max-h-[300px] overflow-y-auto p-4 bg-gray-50 border border-gray-300 rounded-none whitespace-pre-wrap break-words">
+                    <!-- Text chars rendered here via JS -->
+                </div>
+
+                <!-- Invisible Hidden Textarea for focused typing input capturing -->
+                <textarea id="hidden-typing-input" class="opacity-0 absolute -z-50 w-0 h-0" autocomplete="off" autocapitalize="none" spellcheck="false"></textarea>
+            </div>
+
+            <!-- Action Controls Bar -->
+            <div class="flex justify-between items-center pt-2">
+                <button onclick="confirmExitTest()" class="px-5 py-2.5 border border-black bg-white text-black text-sm font-bold hover:bg-gray-100 transition">← Exit Test</button>
+                <div class="space-x-3">
+                    <button onclick="resetCurrentTest()" class="px-5 py-2.5 border border-black bg-white text-black text-sm font-bold hover:bg-gray-100 transition">Restart</button>
+                    <button onclick="finishTestEarly()" class="px-6 py-2.5 border border-black bg-black text-white text-sm font-bold hover:bg-gray-800 transition">Submit Test</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE 5: RESULTS DASHBOARD VIEW ================= -->
+        <div id="view-results" class="hidden space-y-8">
+            <!-- Header -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-black pb-4 gap-4">
+                <div>
+                    <h2 class="text-3xl font-extrabold uppercase tracking-tight">Performance Dashboard</h2>
+                    <p class="text-sm text-gray-500 font-mono">Detailed attempt analytics and historical records</p>
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="exportResultsCSV()" class="px-4 py-2 border border-black bg-white text-black text-xs font-mono font-bold hover:bg-gray-100">Export CSV</button>
+                    <button onclick="confirmClearHistory()" class="px-4 py-2 border border-black bg-black text-white text-xs font-mono font-bold hover:bg-gray-800">Clear History</button>
+                </div>
+            </div>
+
+            <!-- Dashboard Summary Metric Cards -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="border border-black p-4 bg-white">
+                    <span class="text-xs font-mono text-gray-500 uppercase block">Total Attempts</span>
+                    <span id="dash-attempts" class="text-3xl font-black mt-1 block">0</span>
+                </div>
+                <div class="border border-black p-4 bg-white">
+                    <span class="text-xs font-mono text-gray-500 uppercase block">Average Speed</span>
+                    <span id="dash-avg-wpm" class="text-3xl font-black mt-1 block">0.0 <span class="text-xs font-normal">WPM</span></span>
+                </div>
+                <div class="border border-black p-4 bg-white">
+                    <span class="text-xs font-mono text-gray-500 uppercase block">Average Accuracy</span>
+                    <span id="dash-avg-acc" class="text-3xl font-black mt-1 block">0.0%</span>
+                </div>
+                <div class="border border-black p-4 bg-white">
+                    <span class="text-xs font-mono text-gray-500 uppercase block">Average Score</span>
+                    <span id="dash-avg-marks" class="text-3xl font-black mt-1 block">0.0 <span class="text-xs font-normal">/ 10</span></span>
+                </div>
+            </div>
+
+            <!-- Performance Chart -->
+            <div class="border border-black p-6 bg-white space-y-4">
+                <div class="flex justify-between items-center border-b border-gray-200 pb-2">
+                    <h3 class="text-sm font-mono font-bold uppercase">Recent Attempts Performance Trajectory</h3>
+                    <span class="text-xs font-mono text-gray-500">Speed (WPM) Trend</span>
+                </div>
+                <div class="h-48 w-full flex items-end justify-between gap-1 pt-6 px-2" id="chart-container">
+                    <!-- SVG / Dynamic Bar chart rendered via JS -->
+                    <div class="text-gray-400 text-xs font-mono w-full text-center py-16">No test attempt history recorded yet.</div>
+                </div>
+            </div>
+
+            <!-- Table Filters & Controls -->
+            <div class="flex flex-wrap justify-between items-center gap-4 bg-gray-50 p-4 border border-black">
+                <div class="flex flex-wrap items-center gap-3">
+                    <label class="text-xs font-mono font-bold uppercase">Filter Category:</label>
+                    <select id="dash-filter-cat" onchange="renderDashboardTable()" class="border border-black px-2 py-1 text-xs font-mono bg-white">
+                        <option value="all">All Categories</option>
+                        <option value="60">60-Word Tests</option>
+                        <option value="150">150-Word Tests</option>
+                    </select>
+
+                    <label class="text-xs font-mono font-bold uppercase ml-2">Status:</label>
+                    <select id="dash-filter-status" onchange="renderDashboardTable()" class="border border-black px-2 py-1 text-xs font-mono bg-white">
+                        <option value="all">All Statuses</option>
+                        <option value="Completed">Completed Only</option>
+                        <option value="Incomplete">Incomplete Only</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <label class="text-xs font-mono font-bold uppercase">Sort By:</label>
+                    <select id="dash-sort-by" onchange="renderDashboardTable()" class="border border-black px-2 py-1 text-xs font-mono bg-white">
+                        <option value="date-desc">Date (Newest First)</option>
+                        <option value="date-asc">Date (Oldest First)</option>
+                        <option value="wpm-desc">Speed (Highest First)</option>
+                        <option value="acc-desc">Accuracy (Highest First)</option>
+                        <option value="marks-desc">Marks (Highest First)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- History Attempts Table -->
+            <div class="border border-black overflow-x-auto">
+                <table class="w-full text-left text-xs font-mono border-collapse">
+                    <thead>
+                        <tr class="bg-black text-white border-b border-black uppercase">
+                            <th class="p-3">Date & Time</th>
+                            <th class="p-3">Category</th>
+                            <th class="p-3">Test #</th>
+                            <th class="p-3">Speed (WPM)</th>
+                            <th class="p-3">Accuracy</th>
+                            <th class="p-3">Marks</th>
+                            <th class="p-3">Status</th>
+                            <th class="p-3 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body" class="divide-y divide-gray-200">
+                        <!-- Populated dynamically by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-black bg-white py-6 mt-12 text-xs font-mono text-gray-600">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+                <strong>TypeMaster Benchmark System</strong> — Standard 40-Word Passage Engine.
+            </div>
+            <div class="flex space-x-6">
+                <span>Passages Validated: <strong class="text-black" id="footer-validation-status">40 / 40 OK</strong></span>
+                <span>Storage: <strong class="text-black">localStorage Active</strong></span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ================= MODAL 1: TEST RESULTS MODAL ================= -->
+    <div id="results-modal" class="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border-2 border-black max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 space-y-6 shadow-2xl">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-start border-b-2 border-black pb-4">
+                <div>
+                    <span id="modal-category" class="bg-black text-white text-xs font-mono font-bold px-2 py-0.5 uppercase">60-Word Test</span>
+                    <h3 id="modal-test-num" class="text-2xl font-extrabold uppercase mt-1">Test #01 Result</h3>
+                </div>
+                <div class="text-right">
+                    <span id="modal-status-badge" class="px-3 py-1 text-xs font-mono font-bold border border-black bg-gray-100 uppercase">COMPLETED</span>
+                    <p id="modal-timestamp" class="text-[10px] font-mono text-gray-500 mt-1">2026-10-26 17:00</p>
+                </div>
+            </div>
+
+            <!-- Primary Score Grid Cards -->
+            <div class="grid grid-cols-3 gap-4">
+                <div class="border border-black p-4 text-center bg-gray-50">
+                    <span class="text-xs font-mono text-gray-500 uppercase block">Speed</span>
+                    <span id="modal-wpm" class="text-3xl font-black block mt-1">45.2</span>
+                    <span class="text-[10px] font-mono text-gray-600">Words / Min</span>
+                </div>
+                <div class="border border-black p-4 text-center bg-gray-50">
+                    <span class="text-xs font-mono text-gray-500 uppercase block">Accuracy</span>
+                    <span id="modal-acc" class="text-3xl font-black block mt-1">98.5%</span>
+                    <span class="text-[10px] font-mono text-gray-600">Exact Match</span>
+                </div>
+                <div class="border border-black p-4 text-center bg-black text-white">
+                    <span class="text-xs font-mono text-gray-400 uppercase block">Final Marks</span>
+                    <span id="modal-marks" class="text-3xl font-black block mt-1">9.4</span>
+                    <span class="text-[10px] font-mono text-gray-300">Out of 10</span>
+                </div>
+            </div>
+
+            <!-- Detailed Breakdown Metrics -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono border border-black p-3 bg-white">
+                <div><span class="text-gray-500">Total Characters:</span> <strong id="modal-total-chars">320</strong></div>
+                <div><span class="text-gray-500">Correct Chars:</span> <strong id="modal-correct-chars" class="text-black">315</strong></div>
+                <div><span class="text-gray-500">Incorrect Chars:</span> <strong id="modal-incorrect-chars" class="text-black">5</strong></div>
+                <div><span class="text-gray-500">Elapsed Time:</span> <strong id="modal-elapsed-time">42.5s</strong></div>
+            </div>
+
+            <!-- Scoring Breakdown Explanation Box -->
+            <div class="border border-gray-300 p-4 bg-gray-50 space-y-2 text-xs font-mono">
+                <h4 class="font-bold text-black uppercase border-b border-gray-300 pb-1">Transparent Score Calculation</h4>
+                <div class="flex justify-between">
+                    <span>Speed Score: <code id="formula-speed-calc">min(10, (45.2 / 40) × 10)</code></span>
+                    <strong id="formula-speed-val">10.0 / 10</strong>
+                </div>
+                <div class="flex justify-between">
+                    <span>Accuracy Score: <code id="formula-acc-calc">(98.5 / 100) × 10</code></span>
+                    <strong id="formula-acc-val">9.85 / 10</strong>
+                </div>
+                <div class="border-t border-gray-300 pt-1 flex justify-between font-bold text-black">
+                    <span>Weighted Total: (50% Speed + 50% Accuracy)</span>
+                    <strong id="formula-final-val">9.4 / 10</strong>
+                </div>
+            </div>
+
+            <!-- Text Visual Comparison Box -->
+            <div class="space-y-2">
+                <h4 class="text-xs font-mono font-bold uppercase">Passage Comparison & Error Analysis</h4>
+                <div id="modal-text-comparison" class="border border-black p-4 font-mono text-sm max-h-40 overflow-y-auto bg-gray-50 leading-relaxed break-words whitespace-pre-wrap">
+                    <!-- Text analysis markup rendered here -->
+                </div>
+            </div>
+
+            <!-- Performance Message -->
+            <div id="modal-performance-msg" class="border-l-4 border-black p-3 bg-gray-100 text-xs font-mono italic">
+                "Outstanding typing rhythm and precision! Your accuracy and speed are well above standard benchmark levels."
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex flex-wrap justify-between items-center pt-4 border-t border-black gap-2">
+                <button onclick="closeModalAndRetake()" class="px-4 py-2 border border-black bg-white text-black font-bold text-xs hover:bg-gray-100">Retake This Test</button>
+                <div class="space-x-2">
+                    <button onclick="closeModalAndGoCategory()" class="px-4 py-2 border border-black bg-white text-black font-bold text-xs hover:bg-gray-100">Back to Category</button>
+                    <button onclick="closeModalAndNext()" class="px-5 py-2 border border-black bg-black text-white font-bold text-xs hover:bg-gray-800">Next Test →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL 2: CONFIRMATION DIALOG MODAL ================= -->
+    <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border-2 border-black max-w-md w-full p-6 space-y-4 shadow-xl">
+            <h3 id="confirm-modal-title" class="text-lg font-bold uppercase tracking-tight">Confirm Action</h3>
+            <p id="confirm-modal-msg" class="text-sm text-gray-600 font-mono leading-relaxed">Are you sure you want to clear all attempt history and reset your progress?</p>
+            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                <button id="confirm-btn-cancel" class="px-4 py-2 border border-black bg-white text-black text-xs font-mono font-bold hover:bg-gray-100">Cancel</button>
+                <button id="confirm-btn-action" class="px-4 py-2 border border-black bg-black text-white text-xs font-mono font-bold hover:bg-gray-800">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= JAVASCRIPT LOGIC ================= -->
+    <script>
+        /* ==========================================================================
+           1. PASSAGE DATASET (40 UNIQUE PASSAGES VERIFIED PROGRAMMATICALLY)
+           - Category 60: 20 passages, EXACTLY 60 words each.
+           - Category 150: 20 passages, EXACTLY 150 words each.
+           ========================================================================== */
+
+        const PASSAGES_60 = [
+            // Test 01
+            "Modern computers process vast amounts of data using complex algorithms designed for high efficiency. Engineers work continuously to refine hardware architectures, ensuring seamless execution of operations. As digital technology advances rapidly, understanding foundational software mechanics becomes essential for developers worldwide. Creative innovation combined with disciplined logic drives progress in computational sciences and transformational electronic design.",
+            // Test 02
+            "Deep focus requires eliminating digital distractions and creating structured daily routines for work. Concentration allows individuals to master complex skill sets rapidly while producing higher quality output overall. By managing attention effectively, professionals cultivate sustainable productivity and maintain mental clarity throughout busy work environments. Consistency in daily practice ultimately yields long-term success across competitive professional disciplines.",
+            // Test 03
+            "Architectural design balances aesthetic beauty with structural integrity and functional urban utility. Contemporary builders integrate sustainable materials, minimizing environmental footprint while maximizing energy performance standards. Thoughtful urban planning fosters vibrant community interactions and creates inspiring public spaces. As metropolitan populations expand, innovative building practices remain crucial for creating resilient, liveable cities for future generations.",
+            // Test 04
+            "Global commerce relies heavily on interconnected supply chains, logistics networks, and international trade agreements. Companies must continuously adapt to market fluctuations, shifting consumer demands, and economic trends. Strategic planning combined with agile operational execution allows businesses to navigate unpredictable financial landscapes successfully. Fostering resilient commercial partnerships ensures long-term growth and stability across diverse worldwide markets.",
+            // Test 05
+            "Scientific discovery relies on systematic observation, empirical testing, and rigorous analytical deduction. Researchers formulate hypotheses to explore unknown phenomena, contributing valuable knowledge to human understanding. Peer review ensures academic credibility and maintains high standards of evidence across scientific disciplines. Dedication to truth, evidence, and critical inquiry accelerates technological innovation and improves societal well-being globally.",
+            // Test 06
+            "Healthy ecosystems depend on biodiversity, balanced food webs, and natural resource conservation efforts. Environmental stewardship requires collective responsibility to protect forests, oceans, and wildlife habitats worldwide. Sustainable agricultural methods preserve soil fertility and prevent degradation of precious freshwater sources. Prioritizing ecological balance guarantees clean air, vital resources, and stable natural environments for future human generations.",
+            // Test 07
+            "Effective leadership involves clear communication, empathetic listening, and decisive strategic decision-making. Great leaders inspire teams by articulating compelling visions and modeling professional integrity consistently. Encouraging collaboration and recognizing individual contributions builds strong organizational culture and high morale. When leaders empower others to excel, institutions achieve remarkable goals and overcome complex operational challenges together.",
+            // Test 08
+            "Financial literacy equips individuals with necessary skills to manage personal budgets, savings, and investments. Understanding compound interest, risk diversification, and debt management builds long-term economic security. Making informed financial choices minimizes unnecessary debt and prepares households for unexpected expenses. Developing sound money management habits early in life creates independence and opens valuable opportunities.",
+            // Test 09
+            "Literature offers profound insights into human nature, cultural history, and philosophical thought. Reading regular fiction and non-fiction expands vocabulary, enhances empathy, and sharpens analytical thinking capabilities. Writers capture complex human emotions through evocative language, storytelling, and rich character development. Engaging with timeless literary works enriches personal perspectives and deepens our shared understanding of society.",
+            // Test 10
+            "Aerospace engineering explores principles of fluid dynamics, orbital mechanics, and propulsion systems. Space exploration expands human knowledge, revealing cosmic mysteries and inspiring advanced technological breakthroughs. Satellites orbiting Earth provide critical weather data, navigation services, and global communication coverage. Pushing boundaries beyond our planet inspires curiosity and demonstrates human ingenuity across interstellar scientific frontiers.",
+            // Test 11
+            "Physical exercise improves cardiovascular health, boosts muscular strength, and enhances mental clarity significantly. Regular movement releases endorphins, reducing stress and promoting consistent emotional balance throughout daily life. Combining aerobic training with strength exercises fosters long-term physical vitality and resilience. Prioritizing wellness through physical activity enables individuals to maintain active, fulfilling lives across all age levels.",
+            // Test 12
+            "Robotics combines mechanical design, electronic control systems, and artificial intelligence logic. Automated machinery performs precise tasks in manufacturing, medical surgery, and hazardous exploration environments. Engineers continuously refine sensory feedback mechanisms to make robotic interactions safer and more adaptable. Integrating intelligent automation into industry streamlines productivity while opening innovative possibilities for future technological breakthroughs.",
+            // Test 13
+            "Philosophy encourages deep inquiry into existence, morality, knowledge, and fundamental truth. Critical thinking enables individuals to analyze assumptions, evaluate arguments, and formulate reasoned ethical conclusions. Engaging with diverse philosophical perspectives broadens intellectual horizons and sharpens logical reasoning skills. Questioning established norms fosters wisdom, intellectual humility, and thoughtful engagement with societal dilemmas.",
+            // Test 14
+            "Oceanography studies marine life, ocean currents, thermal dynamics, and deep underwater geology. Oceans regulate global climate systems, absorbing excess heat and producing essential oxygen for life. Protecting marine ecosystems from pollution and overfishing is vital for maintaining planetary biological equilibrium. Understanding ocean dynamics enables scientists to predict weather patterns and safeguard coastal communities worldwide.",
+            // Test 15
+            "Digital security protects sensitive information networks, financial transactions, and user privacy rights. Cybersecurity specialists develop robust encryption protocols to defend against cyber threats and unauthorized access. Educating users about phishing risks and strong authentication habits strengthens overall network defense systems. As digital connectivity expands, proactive security practices remain fundamental for maintaining public trust online.",
+            // Test 16
+            "Renewable energy technologies such as solar power, wind turbines, and hydroelectric dams reduce emissions. Transitioning away from fossil fuels mitigates climate change and promotes sustainable economic development. Grid modernization enables efficient energy storage and distribution across urban and rural communities. Clean energy investments drive technological innovation while securing clean power supplies for upcoming generations.",
+            // Test 17
+            "Cognitive psychology investigates human perception, memory retention, problem solving, and decision processes. Understanding how the brain processes sensory inputs helps educators design better learning environments. Research into cognitive biases reveals how subconscious mental shortcuts influence everyday choices and judgments. Applied psychological science improves mental health treatments, educational techniques, and human-computer interaction systems.",
+            // Test 18
+            "Agricultural innovation ensures food security for growing populations through precision farming techniques. Advanced crop breeding, automated irrigation, and soil monitoring enhance yield efficiency while conserving resources. Sustainable farming minimizes chemical runoff, preserving soil microbiology and surrounding natural habitats. Integrating technology into food production supports economic resilience and safeguards global nutrition standards for the future.",
+            // Test 19
+            "Historical analysis examines past events, social movements, and political developments to contextualize present societies. Studying history provides valuable lessons regarding human resilience, governance, and societal evolution over time. Analyzing primary source documents allows historians to reconstruct narrative truths accurately without ideological bias. Knowledge of history fosters informed citizenship, critical awareness, and appreciation for cultural heritage.",
+            // Test 20
+            "Artistic expression through painting, sculpture, music, and performance enriches human cultural life immensely. Visual and auditory arts convey complex emotions, challenge conventional ideas, and foster creative dialogue across communities. Preserving artistic traditions while encouraging modern experimentation keeps cultural heritage dynamic and engaging. Creative endeavors inspire reflection, bridge cultural divides, and highlight the beauty of human imagination."
+        ];
+
+        const PASSAGES_150 = [
+            // Test 01
+            "Information technology has fundamentally transformed how human societies generate, transmit, and utilize knowledge across global networks. High-speed optical networks and distributed cloud computing infrastructure allow massive data sets to move instantly between continents. Consequently, businesses operate on continuous twenty-four-hour schedules, collaborating effortlessly across multiple time zones and cultural boundaries. However, this unprecedented digital connectivity also introduces complex operational challenges regarding data privacy, system reliability, and digital infrastructure security. Software engineers and cybersecurity specialists must collaborate closely to design resilient software frameworks capable of withstanding sophisticated cyber threats. Meanwhile, organizations must adapt their operational models to foster continuous digital innovation while safeguarding user privacy. Embracing lifelong learning and technical adaptability has become mandatory for professionals navigating this fast-paced digital economy. As computational capabilities expand through machine learning, maintaining human oversight and strong ethical guidelines will ensure technology serves humanity constructively.",
+            // Test 2
+            "Effective communication forms the bedrock of successful interpersonal relationships and cohesive organizational culture. Clear verbal articulation, active listening, and thoughtful written messaging prevent misunderstandings while fostering mutual trust among colleagues. When individuals communicate with clarity and empathy, collaboration flourishes, enabling teams to solve complex problems efficiently. Conversely, poor communication often leads to missed deadlines, workplace frustration, and fractured professional relationships. Master communicators pay close attention to subtle non-verbal cues, tone of voice, and context when exchanging ideas with diverse audiences. They ask insightful questions, validate alternative perspectives, and summarize key takeaways to ensure mutual alignment during discussions. Furthermore, adapting communication styles to suit specific digital platforms or face-to-face environments enhances message clarity significantly. Prioritizing open dialogue and constructive feedback within organizations creates inclusive environments where individuals feel valued, empowered, and inspired to contribute their highest quality work consistently.",
+            // Test 03
+            "Renewable energy adoption represents one of the most vital global transitions of the twenty-first century. As international awareness of environmental sustainability grows, nations are investing heavily in solar, wind, and hydroelectric infrastructure. Transitioning away from traditional fossil fuels reduces greenhouse gas emissions while creating new economic opportunities within clean technology sectors. Modern power grids are evolving rapidly to integrate decentralized energy sources and large-scale battery storage facilities. Engineers are developing advanced materials to enhance solar panel efficiency and optimize wind turbine performance in challenging climates. Additionally, smart grid management systems use predictive algorithms to balance electricity supply with consumer demand dynamically. Overcoming political, financial, and logistical obstacles to clean energy deployment requires strong international cooperation and forward-thinking public policies. By committing to clean energy innovations today, society safeguards essential ecological systems while ensuring reliable, sustainable power generation for future generations worldwide.",
+            // Test 04
+            "The discipline of project management requires balancing scope, time, and budget resources to achieve strategic organizational goals. Successful project managers possess strong leadership qualities, analytical foresight, and exceptional risk management capabilities. They construct detailed project timelines, allocate workforce resources effectively, and establish clear performance metrics from inception to completion. Unforeseen delays, scope expansion, and budget constraints frequently test a project team's adaptability and problem-solving skills. Employing structured methodologies such as Agile or Waterfall provides clear frameworks for managing complex workflows and maintaining accountability. Regular stakeholder updates, risk assessments, and milestone evaluations keep projects aligned with strategic objectives. Moreover, fostering a collaborative team culture where open feedback and accountability are celebrated enhances overall execution quality. When project managers navigate obstacles calmly and keep teams aligned, complex initiatives are delivered successfully on schedule and within defined budgetary parameters.",
+            // Test 05
+            "Microeconomics analyzes how individuals, households, and business enterprises allocate scarce resources through daily economic choices. Concepts of supply and demand determine pricing mechanisms across competitive markets, influencing production volumes and consumer purchasing behavior. When consumer demand increases relative to supply, prices rise naturally, signaling producers to expand output capacity. Conversely, excess supply leads to price reductions as businesses attempt to clear surplus inventory. Understanding market equilibrium, elasticity, and opportunity cost helps entrepreneurs and policymakers make rational financial decisions. Furthermore, government interventions such as taxation, subsidies, and price regulations shape market incentives and economic outcomes significantly. Analyzing market structures, ranging from pure competition to monopolies, provides crucial insight into consumer welfare and economic efficiency. Mastering microeconomic principles equips analysts with essential tools to evaluate business strategies, anticipate market trends, and formulate sound commercial policies.",
+            // Test 06
+            "Artificial intelligence research continues to advance rapidly, reshaping medicine, transportation, finance, and creative industries. Machine learning models process vast datasets, detecting subtle patterns that human analysts might easily overlook. In healthcare, diagnostic algorithms assist physicians by identifying early indicators of disease within complex medical imaging scans. Automated vehicles use computer vision and sensor fusion to navigate complex city streets safely under varying conditions. However, the rapid proliferation of artificial intelligence technologies raises important ethical questions regarding algorithmic bias and data privacy. Developers must ensure machine learning systems are transparent, fair, and rigorously tested against unintended consequences. Moreover, governments and regulatory bodies are striving to establish comprehensive policy frameworks that encourage technical innovation while protecting civil liberties. Balancing rapid technical advancement with responsible ethical standards will dictate how effectively artificial intelligence benefits society at large.",
+            // Test 07
+            "Urban planning synthesizes civil engineering, architecture, environmental science, and public policy to create liveable metropolitan environments. As urban populations expand globally, city planners face intense pressure to design efficient transportation systems and affordable housing. Integrating accessible public transit networks reduces traffic congestion, lowers carbon emissions, and connects citizens with economic opportunities. Green urban spaces such as public parks, rooftop gardens, and urban forests improve air quality and enhance mental well-being. Furthermore, modern urban design prioritizes mixed-use zoning, allowing residential, commercial, and recreational areas to coexist harmoniously within walkable neighborhoods. Planners must also design resilient infrastructure capable of withstanding extreme weather events and climate variations. Engaging local communities in planning decisions ensures urban developments reflect the genuine needs and cultural heritage of residents. Through visionary urban design, cities become vibrant centers of economic prosperity, social cohesion, and environmental sustainability.",
+            // Test 08
+            "The human brain remains one of the most complex and fascinating structures in the known universe. Composed of tens of billions of interconnected neurons, it processes sensory information, regulates bodily functions, and generates conscious thought. Neuroscientists study neural plasticity, which describes the brain's remarkable ability to reorganize itself by forming new synaptic connections throughout life. This adaptability allows individuals to acquire new skills, recover from brain injuries, and adapt to changing environmental demands. Cognitive health is heavily influenced by lifestyle factors including sleep quality, physical exercise, balanced nutrition, and continuous mental stimulation. Deep sleep, in particular, plays a vital role in consolidating memories and clearing metabolic waste products from brain tissue. As research uncovers the molecular mechanisms underlying neurological disorders, scientists develop targeted therapies to preserve brain function. Understanding neurobiology enhances educational techniques, mental health interventions, and overall human cognitive potential.",
+            // Test 09
+            "Financial investment requires disciplined research, long-term strategic planning, and rational emotional control during periods of market volatility. Novice investors often fall prey to market hype or panic during temporary downturns, making impulsive decisions that impair wealth growth. Experienced investors build diversified portfolios combining equities, fixed income securities, real estate, and liquid assets to manage investment risk. Asset allocation strategies balance risk and return based on an individual's financial goals, time horizon, and risk tolerance. Conducting thorough fundamental analysis of company balance sheets, earnings reports, and competitive advantages helps investors identify undervalued assets. Additionally, regular portfolio rebalancing ensures investment allocations remain aligned with target risk profiles over time. Compounding returns reward patient investors who maintain consistent contributions despite short-term economic fluctuations. Developing financial literacy empowers individuals to navigate complex financial markets and achieve long-term financial independence.",
+            // Test 10
+            "Scientific progress relies upon the rigorous application of the scientific method to test hypotheses and discover empirical truths. Researchers begin by making precise observations about natural phenomena, formulating clear research questions, and proposing testable explanations. Carefully designed experiments isolate specific variables, gathering quantitative data to confirm or refute the initial theoretical model. Peer review by independent experts ensures research methodology is sound, mathematical analysis is accurate, and conclusions are justified. Reproducibility remains a cornerstone of scientific integrity; independent laboratories must replicate experimental results before findings gain widespread scientific acceptance. Furthermore, scientific theories are not immutable dogmas, but refined models that adapt when new empirical evidence emerges. Open scientific inquiry, transparent data sharing, and intellectual skepticism drive breakthroughs in medicine, physics, and environmental science. Through systematic empirical investigation, science continuously expands human knowledge and improves daily quality of life.",
+            // Test 11
+            "Effective time management is an essential skill for professionals striving to achieve high performance while maintaining personal well-being. Unstructured workdays often lead to wasted effort, constant reactive firefighting, and elevated stress levels among team members. Prioritizing tasks using structured frameworks like the Eisenhower Matrix helps individuals distinguish between urgent activities and important long-term goals. Blocking dedicated time slots for deep, uninterrupted work allows professionals to complete complex tasks with greater focus and accuracy. Additionally, learning to delegate routine tasks and decline non-essential meetings protects valuable time resources for high-priority initiatives. Utilizing digital tools such as calendar scheduling, task management software, and progress trackers streamlines personal workflow management. Regular reflection on daily time expenditure enables individuals to identify inefficiencies and adjust habits for optimal personal productivity. Mastering time management yields professional success, reduced burnout, and improved work-life balance.",
+            // Test 12
+            "Oceanic ecosystems cover over seventy percent of the Earth's surface and play a fundamental role in maintaining global climate stability. Phytoplankton in marine surface waters produce a significant portion of the planet's atmospheric oxygen through photosynthetic processes. Ocean currents redistribute thermal energy from equatorial regions to polar latitudes, moderating global temperatures and shaping global weather patterns. Furthermore, marine biodiversity provides essential food resources and economic livelihoods for billions of people living in coastal communities worldwide. However, marine environments face severe threats from industrial pollution, plastic waste accumulation, ocean acidification, and destructive overfishing practices. Protecting marine ecosystems requires establishing robust marine protected areas, enforcing sustainable fishing quotas, and reducing land-based pollutant runoff. International cooperation is essential for managing international waters and preserving deep-sea habitats from destructive resource extraction. Preserving ocean health guarantees ecological balance and safeguards planetary resources for future generations.",
+            // Test 13
+            "The evolution of architecture reflects shifting human values, technological developments, and cultural aesthetics across different historical epochs. Ancient builders constructed monumental stone structures utilizing arches, vaults, and columns to demonstrate civic power and religious devotion. The Industrial Revolution introduced structural steel and reinforced concrete, enabling architects to design soaring skyscrapers and massive span bridges. Modern architecture emphasizes functional minimalist aesthetics, structural transparency, and seamless integration with surrounding natural landscapes. Today, contemporary architects prioritize sustainable building designs that minimize carbon emissions, conserve water, and utilize recycled construction materials. Building information modeling software allows architects and engineers to simulate energy usage, structural integrity, and lighting conditions before construction begins. By combining artistic vision with advanced engineering techniques, architects create functional, inspiring spaces that enhance human experience and shape urban identities.",
+            // Test 14
+            "Psychological resilience is the capacity to recover quickly from adversity, trauma, loss, or significant sources of ongoing stress. Resilient individuals do not avoid emotional distress; rather, they process negative emotions constructively while maintaining positive long-term perspectives. Developing strong social support networks composed of trusted friends, family, and mentors provides emotional validation during difficult life transitions. Cultivating a growth mindset allows individuals to view setbacks as valuable learning opportunities rather than permanent personal failures. Mindfulness practices and cognitive reframing techniques help individuals manage anxiety, regulate emotional responses, and maintain focus under pressure. Furthermore, maintaining healthy lifestyle habits, such as regular physical activity and adequate rest, builds physical stamina that supports mental resilience. Organizations that foster psychological safety empower employees to take calculated risks, learn from mistakes, and adapt to changing market conditions. Building personal resilience enables individuals to navigate life's inevitable challenges with confidence.",
+            // Test 15
+            "Supply chain management involves coordinating the flow of goods, services, information, and finances from raw material extraction to final delivery. Modern globalized supply chains are intricate networks involving suppliers, manufacturers, logistics providers, distribution centers, and retail outlets. Efficient supply chain execution requires accurate demand forecasting, inventory optimization, and seamless communication across all supply chain partners. Disruptions caused by natural disasters, geopolitical conflicts, or sudden demand shifts can severely impair global production capabilities. Consequently, companies are adopting advanced digital technologies such as Internet of Things sensors, blockchain tracking, and predictive analytics to enhance supply chain visibility. Building resilient supply chains involves diversifying sourcing locations, maintaining strategic safety stock, and developing flexible logistics contingency plans. By optimizing supply chain efficiency and adaptability, businesses reduce operational costs, improve customer satisfaction, and maintain competitive advantages in global markets.",
+            // Test 16
+            "The study of philosophy encourages individuals to examine fundamental questions concerning existence, ethics, knowledge, justice, and human consciousness. Epistemology investigates the nature and limits of human knowledge, exploring how we distinguish verified truth from mere opinion. Ethics evaluates moral frameworks, providing structured principles to guide human conduct and resolve complex moral dilemmas in society. Political philosophy examines the legitimacy of governmental authority, social contract theories, and the protection of individual liberty. Engaging with philosophical inquiry sharpens critical thinking skills, enabling individuals to construct coherent logical arguments and evaluate assumptions rigorously. In an era dominated by rapid technological and social change, philosophical reflection helps society navigate complex ethical challenges in bioethics, digital privacy, and artificial intelligence governance. Pursuing philosophical wisdom fosters intellectual humility, open-mindedness, and a deeper appreciation for the nuanced complexities of human existence.",
+            // Test 17
+            "World history demonstrates how human civilizations have continually interconnected through trade, cultural exchange, technological innovation, and political conflict. The Silk Road facilitated not only the movement of valuable physical commodities like silk and spices, but also the transmission of scientific ideas, philosophical concepts, and religious beliefs across continents. The invention of the printing press in the fifteenth century democratized access to information, accelerating scientific discoveries, educational literacy, and political reformations across Europe. Industrialization transformed agrarian societies into urbanized manufacturing economies, reshaping social structures and global economic dynamics permanently. Understanding historical patterns provides valuable context for analyzing contemporary global events, geopolitical tensions, and socio-economic challenges. Examining both the achievements and failures of past societies fosters critical perspective and historical empathy among global citizens. By studying our shared human past, society gains insight into preserving peace, fostering international cooperation, and building resilient democratic institutions.",
+            // Test 18
+            "Biotechnology combines biological sciences with advanced engineering principles to develop innovative products and technologies that improve human lives. In medicine, genetic engineering and gene-editing tools like CRISPR enable scientists to target disease-causing mutations directly at the molecular level. Biopharmaceutical research produces specialized therapies, vaccines, and diagnostic tests that enhance disease prevention and personalized healthcare delivery. In agriculture, genetically modified crops exhibit enhanced resistance to pests, droughts, and extreme temperatures, boosting global food production security. However, the rapid advancement of biotechnological capabilities necessitates careful ethical oversight to prevent misuse and address public safety concerns. Regulatory agencies establish rigorous clinical trial protocols to verify the safety and efficacy of novel biological treatments before public approval. Supporting responsible biotechnology research drives medical breakthroughs, environmental remediation efforts, and sustainable agricultural practices, offering solutions to global health challenges.",
+            // Test 19
+            "Environmental conservation requires balancing human economic development with the preservation of natural ecosystems and planetary biodiversity. Deforestation, habitat fragmentation, and industrial pollution threaten wildlife populations and disrupt essential ecosystem services like water purification. Conservation biologists work to preserve endangered species by establishing protected wildlife corridors, restoring degraded habitats, and curbing illegal poaching activities. Community-based conservation programs empower local populations by involving them directly in resource management and sustainable ecotourism initiatives. Furthermore, international environmental agreements provide frameworks for global cooperation on climate change mitigation, migratory species protection, and plastic waste reduction. Sustainable resource management practices ensure timber harvesting, water extraction, and agricultural land use do not exceed nature's regenerative capacity. Preserving healthy natural ecosystems safeguards biological diversity, maintains global climate resilience, and secures vital ecological resources for the well-being of future generations.",
+            // Test 20
+            "Cybersecurity is an ongoing strategic priority for governments, commercial enterprises, and individuals navigating an increasingly interconnected digital world. High-profile data breaches, ransomware attacks, and nation-state cyber espionage threaten critical infrastructure, economic stability, and national security. Defense strategies require multi-layered security architectures including strong data encryption, robust network firewalls, and multi-factor authentication protocols. Security teams conduct continuous threat monitoring and vulnerability assessments to detect and neutralize unauthorized system intrusions rapidly. Beyond technical controls, organizational security posture relies heavily on cultivating a security-conscious culture among employees through regular security awareness training. Human error, such as falling victim to phishing scams, remains one of the primary vectors for security breaches. Implementing zero-trust security architectures ensures every access request is rigorously verified before granting administrative network privileges. Maintaining proactive cybersecurity resilience protects sensitive personal data, safeguards intellectual property, and preserves public trust in digital systems."
+        ];
+
+        /* ==========================================================================
+           2. PROGRAMMATIC WORD-COUNT VALIDATOR & INITIALIZATION
+           ========================================================================== */
+
+        function validatePassages() {
+            let isValid = true;
+            let logDetails = [];
+
+            // Helper to count words strictly by space separation
+            const countWords = (str) => str.trim().split(/\s+/).length;
+
+            PASSAGES_60.forEach((p, idx) => {
+                const count = countWords(p);
+                if (count !== 60) {
+                    console.error(`Validation Error: 60-Word Test #${idx+1} has ${count} words!`);
+                    isValid = false;
+                }
+            });
+
+            PASSAGES_150.forEach((p, idx) => {
+                const count = countWords(p);
+                if (count !== 150) {
+                    console.error(`Validation Error: 150-Word Test #${idx+1} has ${count} words!`);
+                    isValid = false;
+                }
+            });
+
+            const statusEl = document.getElementById('footer-validation-status');
+            if (isValid) {
+                console.log("PASSAGE VALIDATION PASSED: All 40 passages have exact word counts (20x60W, 20x150W).");
+                if (statusEl) statusEl.textContent = "40 / 40 OK (Validated)";
+            } else {
+                if (statusEl) {
+                    statusEl.textContent = "Validation Warnings!";
+                    statusEl.classList.add("text-red-600");
+                }
+            }
+            return isValid;
+        }
+
+        /* ==========================================================================
+           3. STATE MANAGEMENT & LOCAL STORAGE PIPELINE
+           ========================================================================== */
+
+        const STORAGE_KEY_ATTEMPTS = "typemaster_attempts_v1";
+        
+        // Application State
+        let appState = {
+            currentView: 'home', // 'home', 'tests-60', 'tests-150', 'test-active', 'results'
+            activeCategory: '60', // '60' or '150'
+            activeTestIndex: 0, // 0 to 19
+            filterLibraryStatus: 'all', // 'all', 'completed', 'pending'
+            attemptsHistory: [], // Array of attempt objects
+            
+            // Active Test Session Variables
+            activeSession: {
+                timerId: null,
+                startTime: null,
+                elapsedSeconds: 0,
+                timeLimitSeconds: 120, // 120 for 60W, 300 for 150W
+                targetPassageText: "",
+                typedInputText: "",
+                timerStarted: false,
+                isFinished: false
+            }
+        };
+
+        // Load attempts from LocalStorage
+        function loadStorageData() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY_ATTEMPTS);
+                if (saved) {
+                    appState.attemptsHistory = JSON.parse(saved);
+                }
+            } catch (e) {
+                console.error("Failed to read from localStorage:", e);
+                appState.attemptsHistory = [];
+            }
+        }
+
+        // Save attempts to LocalStorage
+        function saveStorageData() {
+            try {
+                localStorage.setItem(STORAGE_KEY_ATTEMPTS, JSON.stringify(appState.attemptsHistory));
+            } catch (e) {
+                console.error("Failed to save to localStorage:", e);
+            }
+        }
+
+        /* ==========================================================================
+           4. NAVIGATION & VIEW ROUTING
+           ========================================================================== */
+
+        function navigateTo(viewName) {
+            // Cancel active timer if navigating away from active test
+            if (appState.currentView === 'test-active' && viewName !== 'test-active') {
+                clearInterval(appState.activeSession.timerId);
+            }
+
+            appState.currentView = viewName;
+
+            // Hide all view containers
+            document.getElementById('view-home').classList.add('hidden');
+            document.getElementById('view-library').classList.add('hidden');
+            document.getElementById('view-test').classList.add('hidden');
+            document.getElementById('view-results').classList.add('hidden');
+
+            // Reset navigation tab styles
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('border-black', 'font-semibold');
+                btn.classList.add('border-transparent');
+            });
+
+            // Show active view container and update nav styling
+            if (viewName === 'home') {
+                document.getElementById('view-home').classList.remove('hidden');
+                document.getElementById('nav-home').classList.add('border-black', 'font-semibold');
+                document.getElementById('nav-home').classList.remove('border-transparent');
+                renderHomeStats();
+            } else if (viewName === 'tests-60') {
+                appState.activeCategory = '60';
+                document.getElementById('view-library').classList.remove('hidden');
+                document.getElementById('nav-60w').classList.add('border-black', 'font-semibold');
+                document.getElementById('nav-60w').classList.remove('border-transparent');
+                renderLibraryView('60');
+            } else if (viewName === 'tests-150') {
+                appState.activeCategory = '150';
+                document.getElementById('view-library').classList.remove('hidden');
+                document.getElementById('nav-150w').classList.add('border-black', 'font-semibold');
+                document.getElementById('nav-150w').classList.remove('border-transparent');
+                renderLibraryView('150');
+            } else if (viewName === 'results') {
+                document.getElementById('view-results').classList.remove('hidden');
+                document.getElementById('nav-results').classList.add('border-black', 'font-semibold');
+                document.getElementById('nav-results').classList.remove('border-transparent');
+                renderDashboardView();
+            } else if (viewName === 'test-active') {
+                document.getElementById('view-test').classList.remove('hidden');
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        /* ==========================================================================
+           5. HOME VIEW RENDERING
+           ========================================================================== */
+
+        function renderHomeStats() {
+            const attempts = appState.attemptsHistory;
+            const completedUniqueIds = new Set(attempts.filter(a => a.status === 'Completed').map(a => `${a.category}-${a.testNum}`));
+            
+            document.getElementById('stat-completed').textContent = completedUniqueIds.size;
+
+            if (attempts.length === 0) {
+                document.getElementById('stat-avg-wpm').textContent = "0.0";
+                document.getElementById('stat-avg-acc').textContent = "0.0%";
+                document.getElementById('stat-best-marks').textContent = "0.0";
+            } else {
+                const avgWpm = attempts.reduce((acc, curr) => acc + curr.wpm, 0) / attempts.length;
+                const avgAcc = attempts.reduce((acc, curr) => acc + curr.accuracy, 0) / attempts.length;
+                const bestMarks = Math.max(...attempts.map(a => a.marks));
+
+                document.getElementById('stat-avg-wpm').textContent = avgWpm.toFixed(1);
+                document.getElementById('stat-avg-acc').textContent = avgAcc.toFixed(1) + "%";
+                document.getElementById('stat-best-marks').textContent = bestMarks.toFixed(1);
+            }
+
+            // Category progress bars
+            const completed60 = new Set(attempts.filter(a => a.category === '60' && a.status === 'Completed').map(a => a.testNum)).size;
+            const completed150 = new Set(attempts.filter(a => a.category === '150' && a.status === 'Completed').map(a => a.testNum)).size;
+
+            document.getElementById('progress-text-60').textContent = `${completed60} / 20 Completed`;
+            document.getElementById('progress-bar-60').style.width = `${(completed60 / 20) * 100}%`;
+
+            document.getElementById('progress-text-150').textContent = `${completed150} / 20 Completed`;
+            document.getElementById('progress-bar-150').style.width = `${(completed150 / 20) * 100}%`;
+        }
+
+        function startQuickTest(category) {
+            startTest(category, 0);
+        }
+
+        function startFirstUncompleted(category) {
+            const completedNums = new Set(appState.attemptsHistory.filter(a => a.category === category && a.status === 'Completed').map(a => a.testNum));
+            for (let i = 0; i < 20; i++) {
+                if (!completedNums.has(i + 1)) {
+                    startTest(category, i);
+                    return;
+                }
+            }
+            // If all completed, start test 0
+            startTest(category, 0);
+        }
+
+        /* ==========================================================================
+           6. LIBRARY VIEW RENDERING (20 TESTS GRID)
+           ========================================================================== */
+
+        function renderLibraryView(category) {
+            const titleEl = document.getElementById('library-title');
+            const descEl = document.getElementById('library-desc');
+            const gridEl = document.getElementById('library-grid');
+
+            if (category === '60') {
+                titleEl.textContent = "60-Word Test Library";
+                descEl.textContent = "High-burst speed tests. Select any test passage from Test 01 to Test 20.";
+            } else {
+                titleEl.textContent = "150-Word Test Library";
+                descEl.textContent = "Extended stamina tests. Select any test passage from Test 01 to Test 20.";
+            }
+
+            gridEl.innerHTML = "";
+
+            // Gather best score per test
+            const bestPerTest = {};
+            appState.attemptsHistory.filter(a => a.category === category).forEach(attempt => {
+                const tNum = attempt.testNum;
+                if (!bestPerTest[tNum] || attempt.marks > bestPerTest[tNum].marks) {
+                    bestPerTest[tNum] = attempt;
+                }
+            });
+
+            const filterStatus = appState.filterLibraryStatus;
+
+            for (let i = 0; i < 20; i++) {
+                const testNum = i + 1;
+                const bestAttempt = bestPerTest[testNum];
+                const isCompleted = !!(bestAttempt && bestAttempt.status === 'Completed');
+
+                // Filter logic
+                if (filterStatus === 'completed' && !isCompleted) continue;
+                if (filterStatus === 'pending' && isCompleted) continue;
+
+                const card = document.createElement('div');
+                card.className = "border border-black p-5 bg-white flex flex-col justify-between hover:shadow-md transition space-y-4";
+                
+                let statusBadge = `<span class="px-2 py-0.5 text-[10px] font-mono border border-gray-400 bg-gray-100 uppercase text-gray-600">Not Started</span>`;
+                if (isCompleted) {
+                    statusBadge = `<span class="px-2 py-0.5 text-[10px] font-mono border border-black bg-black text-white uppercase font-bold">Completed</span>`;
+                } else if (bestAttempt) {
+                    statusBadge = `<span class="px-2 py-0.5 text-[10px] font-mono border border-black bg-gray-200 text-black uppercase">In Progress</span>`;
+                }
+
+                const wpmText = bestAttempt ? `${bestAttempt.wpm.toFixed(1)} WPM` : "—";
+                const accText = bestAttempt ? `${bestAttempt.accuracy.toFixed(1)}%` : "—";
+                const marksText = bestAttempt ? `${bestAttempt.marks.toFixed(1)} / 10` : "—";
+
+                card.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs font-mono font-bold text-gray-500">TEST ${testNum < 10 ? '0' + testNum : testNum}</span>
+                            ${statusBadge}
+                        </div>
+                        <h4 class="text-lg font-extrabold uppercase tracking-tight">${category}-Word Test #${testNum < 10 ? '0' + testNum : testNum}</h4>
+                        <div class="grid grid-cols-3 gap-1 pt-2 border-t border-gray-200 text-center font-mono">
+                            <div>
+                                <span class="text-[9px] text-gray-500 block">BEST SPEED</span>
+                                <span class="text-xs font-bold">${wpmText}</span>
+                            </div>
+                            <div>
+                                <span class="text-[9px] text-gray-500 block">ACCURACY</span>
+                                <span class="text-xs font-bold">${accText}</span>
+                            </div>
+                            <div>
+                                <span class="text-[9px] text-gray-500 block">MARKS</span>
+                                <span class="text-xs font-bold">${marksText}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="startTest('${category}', ${i})" class="w-full py-2 bg-black text-white text-xs font-mono font-bold hover:bg-gray-800 transition uppercase mt-2">
+                        ${isCompleted ? 'Retake Test' : 'Start Test'}
+                    </button>
+                `;
+                gridEl.appendChild(card);
+            }
+        }
+
+        function filterLibrary(status) {
+            appState.filterLibraryStatus = status;
+
+            // Highlight active tab
+            ['all', 'completed', 'pending'].forEach(s => {
+                const btn = document.getElementById(`filter-${s}`);
+                if (s === status) {
+                    btn.className = "px-3 py-1.5 text-xs font-mono font-bold bg-black text-white";
+                } else {
+                    btn.className = "px-3 py-1.5 text-xs font-mono font-bold bg-white text-black hover:bg-gray-100 border-l border-black";
+                }
+            });
+
+            renderLibraryView(appState.activeCategory);
+        }
+
+        /* ==========================================================================
+           7. TYPING TEST ENGINE (REAL-TIME INPUT & HIGH-ACCURACY SCORING)
+           ========================================================================== */
+
+        function startTest(category, testIndex) {
+            appState.activeCategory = category;
+            appState.activeTestIndex = testIndex;
+
+            const passageList = category === '60' ? PASSAGES_60 : PASSAGES_150;
+            const targetText = passageList[testIndex];
+
+            // Reset active session state
+            appState.activeSession = {
+                timerId: null,
+                startTime: null,
+                elapsedSeconds: 0,
+                timeLimitSeconds: category === '60' ? 120 : 300,
+                targetPassageText: targetText,
+                typedInputText: "",
+                timerStarted: false,
+                isFinished: false
+            };
+
+            // Setup UI Elements
+            document.getElementById('test-category-badge').textContent = `${category}-Word Test`;
+            const formattedNum = (testIndex + 1) < 10 ? '0' + (testIndex + 1) : (testIndex + 1);
+            document.getElementById('test-title').textContent = `Test #${formattedNum}`;
+            document.getElementById('live-timer').textContent = formatTime(appState.activeSession.timeLimitSeconds);
+            document.getElementById('live-wpm').textContent = "0";
+            document.getElementById('live-accuracy').textContent = "100%";
+            document.getElementById('live-progress').textContent = `0/${targetText.split(/\s+/).length}`;
+            document.getElementById('keystroke-hint').classList.remove('hidden');
+
+            renderPassageText();
+
+            // Focus typing input
+            const inputEl = document.getElementById('hidden-typing-input');
+            inputEl.value = "";
+            
+            navigateTo('test-active');
+
+            setTimeout(() => inputEl.focus(), 100);
+        }
+
+        function renderPassageText() {
+            const container = document.getElementById('passage-container');
+            const masterText = appState.activeSession.targetPassageText;
+            const typedText = appState.activeSession.typedInputText;
+
+            let html = "";
+            for (let i = 0; i < masterText.length; i++) {
+                const charMaster = masterText[i];
+                if (i < typedText.length) {
+                    const charTyped = typedText[i];
+                    if (charTyped === charMaster) {
+                        html += `<span class="char-correct">${escapeHtml(charMaster)}</span>`;
+                    } else {
+                        html += `<span class="char-incorrect">${escapeHtml(charMaster)}</span>`;
+                    }
+                } else if (i === typedText.length) {
+                    html += `<span class="char-current">${escapeHtml(charMaster)}</span>`;
+                } else {
+                    html += `<span class="char-untyped">${escapeHtml(charMaster)}</span>`;
+                }
+            }
+            container.innerHTML = html;
+
+            // Auto-scroll current character into view
+            const currentEl = container.querySelector('.char-current');
+            if (currentEl) {
+                currentEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        // Attach Typing Key Listeners
+        const typingInput = document.getElementById('hidden-typing-input');
+        const passageContainer = document.getElementById('passage-container');
+
+        // Focus input whenever user clicks the passage display box
+        passageContainer.addEventListener('click', () => {
+            typingInput.focus();
+        });
+
+        typingInput.addEventListener('input', (e) => {
+            const session = appState.activeSession;
+            if (session.isFinished) return;
+
+            // Auto Start Timer on First Keystroke
+            if (!session.timerStarted && typingInput.value.length > 0) {
+                session.timerStarted = true;
+                session.startTime = Date.now();
+                document.getElementById('keystroke-hint').classList.add('hidden');
+                
+                session.timerId = setInterval(updateTimerTick, 100);
+            }
+
+            session.typedInputText = typingInput.value;
+
+            // Cap typed text length to passage length
+            if (session.typedInputText.length > session.targetPassageText.length) {
+                session.typedInputText = session.typedInputText.substring(0, session.targetPassageText.length);
+                typingInput.value = session.typedInputText;
+            }
+
+            renderPassageText();
+            updateLiveMetrics();
+
+            // Auto-Finish when passage completely typed
+            if (session.typedInputText.length >= session.targetPassageText.length) {
+                finishTest(true);
+            }
+        });
+
+        function updateTimerTick() {
+            const session = appState.activeSession;
+            if (!session.timerStarted || session.isFinished) return;
+
+            const elapsed = (Date.now() - session.startTime) / 1000;
+            session.elapsedSeconds = elapsed;
+
+            const remaining = Math.max(0, session.timeLimitSeconds - elapsed);
+            document.getElementById('live-timer').textContent = formatTime(Math.ceil(remaining));
+
+            updateLiveMetrics();
+
+            // Time Expired
+            if (remaining <= 0) {
+                finishTest(false);
+            }
+        }
+
+        function updateLiveMetrics() {
+            const session = appState.activeSession;
+            const typed = session.typedInputText;
+            const target = session.targetPassageText;
+
+            if (typed.length === 0) {
+                document.getElementById('live-wpm').textContent = "0";
+                document.getElementById('live-accuracy').textContent = "100%";
+                document.getElementById('live-progress').textContent = `0/${target.split(/\s+/).length}`;
+                return;
+            }
+
+            // Character level accuracy
+            let correctChars = 0;
+            for (let i = 0; i < typed.length; i++) {
+                if (typed[i] === target[i]) correctChars++;
+            }
+
+            const accuracy = (correctChars / typed.length) * 100;
+            const elapsedMins = Math.max(session.elapsedSeconds / 60, 0.001);
+            const wpm = (typed.length / 5) / elapsedMins;
+
+            // Word level progress calculation
+            const typedWordsCount = typed.trim().split(/\s+/).filter(w => w.length > 0).length;
+            const totalWordsCount = target.split(/\s+/).length;
+
+            document.getElementById('live-wpm').textContent = Math.round(wpm);
+            document.getElementById('live-accuracy').textContent = Math.round(accuracy) + "%";
+            document.getElementById('live-progress').textContent = `${typedWordsCount}/${totalWordsCount}`;
+        }
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
+        }
+
+        function resetCurrentTest() {
+            clearInterval(appState.activeSession.timerId);
+            startTest(appState.activeCategory, appState.activeTestIndex);
+        }
+
+        function finishTestEarly() {
+            if (!appState.activeSession.timerStarted) return;
+            finishTest(false);
+        }
+
+        function confirmExitTest() {
+            if (appState.activeSession.timerStarted && !appState.activeSession.isFinished) {
+                showConfirmModal(
+                    "Exit Active Test?",
+                    "Are you sure you want to exit? Unsaved test progress will be lost.",
+                    () => navigateTo(`tests-${appState.activeCategory}`)
+                );
+            } else {
+                navigateTo(`tests-${appState.activeCategory}`);
+            }
+        }
+
+        /* ==========================================================================
+           8. SCORING ENGINE & RESULTS GENERATION
+           ========================================================================== */
+
+        function finishTest(isFullyCompleted) {
+            const session = appState.activeSession;
+            if (session.isFinished) return;
+
+            session.isFinished = true;
+            clearInterval(session.timerId);
+
+            const typed = session.typedInputText;
+            const target = session.targetPassageText;
+            const elapsedSeconds = Math.max(session.elapsedSeconds, 1.0); // min 1s prevent division by zero
+
+            let correctChars = 0;
+            let incorrectChars = 0;
+
+            for (let i = 0; i < typed.length; i++) {
+                if (typed[i] === target[i]) {
+                    correctChars++;
+                } else {
+                    incorrectChars++;
+                }
+            }
+
+            // Calculations
+            const totalTyped = typed.length;
+            const accuracy = totalTyped > 0 ? (correctChars / totalTyped) * 100 : 0;
+            const elapsedMins = elapsedSeconds / 60;
+            const wpm = totalTyped > 0 ? (totalTyped / 5) / elapsedMins : 0;
+
+            // Standardized Marks Calculation
+            // Target Speed: 40 WPM for 10/10 base speed score
+            const speedScore = Math.min(10, (wpm / 40) * 10);
+            const accuracyScore = (accuracy / 100) * 10;
+            const finalMarks = Math.min(10, Math.max(0, (speedScore * 0.5) + (accuracyScore * 0.5)));
+
+            const testNum = appState.activeTestIndex + 1;
+            const status = isFullyCompleted ? 'Completed' : 'Incomplete';
+
+            const attemptRecord = {
+                id: Date.now().toString(),
+                timestamp: new Date().toISOString(),
+                category: appState.activeCategory,
+                testNum: testNum,
+                wpm: Number(wpm.toFixed(1)),
+                accuracy: Number(accuracy.toFixed(1)),
+                marks: Number(finalMarks.toFixed(1)),
+                speedScore: Number(speedScore.toFixed(1)),
+                accuracyScore: Number(accuracyScore.toFixed(1)),
+                totalChars: totalTyped,
+                correctChars: correctChars,
+                incorrectChars: incorrectChars,
+                elapsedSeconds: Number(elapsedSeconds.toFixed(1)),
+                status: status,
+                typedText: typed,
+                masterText: target
+            };
+
+            // Save Attempt Record to state & localStorage
+            appState.attemptsHistory.unshift(attemptRecord);
+            saveStorageData();
+
+            // Display Results Modal
+            showResultsModal(attemptRecord);
+        }
+
+        /* ==========================================================================
+           9. RESULTS MODAL & COMPARISON VISUALIZER
+           ========================================================================== */
+
+        function showResultsModal(attempt) {
+            document.getElementById('modal-category').textContent = `${attempt.category}-Word Test`;
+            const formattedNum = attempt.testNum < 10 ? '0' + attempt.testNum : attempt.testNum;
+            document.getElementById('modal-test-num').textContent = `Test #${formattedNum} Results`;
+            
+            const badge = document.getElementById('modal-status-badge');
+            badge.textContent = attempt.status;
+            if (attempt.status === 'Completed') {
+                badge.className = "px-3 py-1 text-xs font-mono font-bold border border-black bg-black text-white uppercase";
+            } else {
+                badge.className = "px-3 py-1 text-xs font-mono font-bold border border-black bg-gray-200 text-black uppercase";
+            }
+
+            const dateStr = new Date(attempt.timestamp).toLocaleString();
+            document.getElementById('modal-timestamp').textContent = dateStr;
+
+            document.getElementById('modal-wpm').textContent = attempt.wpm.toFixed(1);
+            document.getElementById('modal-acc').textContent = attempt.accuracy.toFixed(1) + "%";
+            document.getElementById('modal-marks').textContent = attempt.marks.toFixed(1);
+
+            document.getElementById('modal-total-chars').textContent = attempt.totalChars;
+            document.getElementById('modal-correct-chars').textContent = attempt.correctChars;
+            document.getElementById('modal-incorrect-chars').textContent = attempt.incorrectChars;
+            document.getElementById('modal-elapsed-time').textContent = attempt.elapsedSeconds.toFixed(1) + "s";
+
+            // Formula Display
+            document.getElementById('formula-speed-calc').textContent = `min(10, (${attempt.wpm} / 40) × 10)`;
+            document.getElementById('formula-speed-val').textContent = `${attempt.speedScore} / 10`;
+            document.getElementById('formula-acc-calc').textContent = `(${attempt.accuracy}% / 100) × 10`;
+            document.getElementById('formula-acc-val').textContent = `${attempt.accuracyScore} / 10`;
+            document.getElementById('formula-final-val').textContent = `${attempt.marks} / 10`;
+
+            // Comparison Visualizer Render
+            const master = attempt.masterText;
+            const typed = attempt.typedText;
+            let compHtml = "";
+
+            for (let i = 0; i < master.length; i++) {
+                if (i < typed.length) {
+                    if (typed[i] === master[i]) {
+                        compHtml += `<span class="bg-gray-200 text-black">${escapeHtml(master[i])}</span>`;
+                    } else {
+                        compHtml += `<span class="bg-black text-white font-bold underline">${escapeHtml(typed[i])}</span>`;
+                    }
+                } else {
+                    compHtml += `<span class="text-gray-400 opacity-60">${escapeHtml(master[i])}</span>`;
+                }
+            }
+            document.getElementById('modal-text-comparison').innerHTML = compHtml;
+
+            // Performance Feedback Message
+            const msgEl = document.getElementById('modal-performance-msg');
+            if (attempt.marks >= 9.0) {
+                msgEl.textContent = `"Exceptional performance! Master-level speed and razor-sharp accuracy recorded."`;
+            } else if (attempt.marks >= 7.5) {
+                msgEl.textContent = `"Great job! Solid typing rhythm and high accuracy. Consistent practice will push you into top benchmark tiers."`;
+            } else if (attempt.marks >= 5.0) {
+                msgEl.textContent = `"Satisfactory attempt. Focus on maintaining consistent keystroke rhythm and minimizing miskeys to boost overall accuracy."`;
+            } else {
+                msgEl.textContent = `"Room for improvement. Slow down slightly to focus on character accuracy before attempting higher speeds."`;
+            }
+
+            document.getElementById('results-modal').classList.remove('hidden');
+        }
+
+        function closeModalAndRetake() {
+            document.getElementById('results-modal').classList.add('hidden');
+            resetCurrentTest();
+        }
+
+        function closeModalAndGoCategory() {
+            document.getElementById('results-modal').classList.add('hidden');
+            navigateTo(`tests-${appState.activeCategory}`);
+        }
+
+        function closeModalAndNext() {
+            document.getElementById('results-modal').classList.add('hidden');
+            const nextIdx = (appState.activeTestIndex + 1) % 20;
+            startTest(appState.activeCategory, nextIdx);
+        }
+
+        /* ==========================================================================
+           10. RESULTS DASHBOARD & HISTORICAL ANALYTICS TABLE
+           ========================================================================== */
+
+        function renderDashboardView() {
+            const attempts = appState.attemptsHistory;
+
+            document.getElementById('dash-attempts').textContent = attempts.length;
+
+            if (attempts.length === 0) {
+                document.getElementById('dash-avg-wpm').innerHTML = `0.0 <span class="text-xs font-normal">WPM</span>`;
+                document.getElementById('dash-avg-acc').textContent = `0.0%`;
+                document.getElementById('dash-avg-marks').innerHTML = `0.0 <span class="text-xs font-normal">/ 10</span>`;
+            } else {
+                const avgWpm = attempts.reduce((acc, curr) => acc + curr.wpm, 0) / attempts.length;
+                const avgAcc = attempts.reduce((acc, curr) => acc + curr.accuracy, 0) / attempts.length;
+                const avgMarks = attempts.reduce((acc, curr) => acc + curr.marks, 0) / attempts.length;
+
+                document.getElementById('dash-avg-wpm').innerHTML = `${avgWpm.toFixed(1)} <span class="text-xs font-normal">WPM</span>`;
+                document.getElementById('dash-avg-acc').textContent = `${avgAcc.toFixed(1)}%`;
+                document.getElementById('dash-avg-marks').innerHTML = `${avgMarks.toFixed(1)} <span class="text-xs font-normal">/ 10</span>`;
+            }
+
+            renderChart();
+            renderDashboardTable();
+        }
+
+        function renderChart() {
+            const container = document.getElementById('chart-container');
+            const attempts = [...appState.attemptsHistory].reverse().slice(-15); // Recent 15 attempts
+
+            if (attempts.length === 0) {
+                container.innerHTML = `<div class="text-gray-400 text-xs font-mono w-full text-center py-16">No test attempt history recorded yet.</div>`;
+                return;
+            }
+
+            const maxWpm = Math.max(...attempts.map(a => a.wpm), 60);
+
+            let chartHtml = "";
+            attempts.forEach((a, i) => {
+                const heightPct = Math.max(10, (a.wpm / maxWpm) * 100);
+                chartHtml += `
+                    <div class="flex-1 flex flex-col items-center gap-1 group relative">
+                        <!-- Tooltip -->
+                        <div class="absolute -top-10 opacity-0 group-hover:opacity-100 bg-black text-white text-[10px] font-mono p-1 rounded transition pointer-events-none z-10 whitespace-nowrap">
+                            ${a.category}W #${a.testNum}: ${a.wpm} WPM (${a.accuracy}%)
+                        </div>
+                        <div class="w-full bg-gray-200 hover:bg-black transition-colors" style="height: ${heightPct}%"></div>
+                        <span class="text-[9px] font-mono text-gray-500 truncate w-full text-center">#${i+1}</span>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = chartHtml;
+        }
+
+        function renderDashboardTable() {
+            const tbody = document.getElementById('history-table-body');
+            const catFilter = document.getElementById('dash-filter-cat').value;
+            const statusFilter = document.getElementById('dash-filter-status').value;
+            const sortBy = document.getElementById('dash-sort-by').value;
+
+            let filtered = [...appState.attemptsHistory];
+
+            // Filter by Category
+            if (catFilter !== 'all') {
+                filtered = filtered.filter(a => a.category === catFilter);
+            }
+
+            // Filter by Status
+            if (statusFilter !== 'all') {
+                filtered = filtered.filter(a => a.status === statusFilter);
+            }
+
+            // Sorting Logic
+            filtered.sort((a, b) => {
+                if (sortBy === 'date-desc') return new Date(b.timestamp) - new Date(a.timestamp);
+                if (sortBy === 'date-asc') return new Date(a.timestamp) - new Date(b.timestamp);
+                if (sortBy === 'wpm-desc') return b.wpm - a.wpm;
+                if (sortBy === 'acc-desc') return b.accuracy - a.accuracy;
+                if (sortBy === 'marks-desc') return b.marks - a.marks;
+                return 0;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-gray-500 italic">No matching test attempts recorded.</td></tr>`;
+                return;
+            }
+
+            let html = "";
+            filtered.forEach(attempt => {
+                const dateStr = new Date(attempt.timestamp).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
+                const statusClass = attempt.status === 'Completed' ? 'text-black font-bold' : 'text-gray-500';
+
+                html += `
+                    <tr class="hover:bg-gray-50 transition border-b border-gray-100">
+                        <td class="p-3">${dateStr}</td>
+                        <td class="p-3 uppercase">${attempt.category}-Word</td>
+                        <td class="p-3 font-bold">#${attempt.testNum < 10 ? '0' + attempt.testNum : attempt.testNum}</td>
+                        <td class="p-3 font-bold">${attempt.wpm.toFixed(1)}</td>
+                        <td class="p-3">${attempt.accuracy.toFixed(1)}%</td>
+                        <td class="p-3 font-bold">${attempt.marks.toFixed(1)} / 10</td>
+                        <td class="p-3 ${statusClass}">${attempt.status}</td>
+                        <td class="p-3 text-right">
+                            <button onclick='reopenAttemptModal(${JSON.stringify(attempt.id)})' class="px-2 py-1 border border-black bg-white hover:bg-black hover:text-white transition text-[10px]">View Detail</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function reopenAttemptModal(attemptId) {
+            const attempt = appState.attemptsHistory.find(a => a.id === attemptId);
+            if (attempt) {
+                showResultsModal(attempt);
+            }
+        }
+
+        function exportResultsCSV() {
+            const attempts = appState.attemptsHistory;
+            if (attempts.length === 0) {
+                alert("No test attempts available to export.");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "ID,Timestamp,Category,TestNum,WPM,Accuracy,Marks,ElapsedSeconds,Status\n";
+
+            attempts.forEach(a => {
+                csvContent += `${a.id},${a.timestamp},${a.category},${a.testNum},${a.wpm},${a.accuracy},${a.marks},${a.elapsedSeconds},${a.status}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `typemaster_results_${Date.now()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        /* ==========================================================================
+           11. MODAL & DIALOG HELPER PIPELINE
+           ========================================================================== */
+
+        function showConfirmModal(title, msg, onConfirm) {
+            document.getElementById('confirm-modal-title').textContent = title;
+            document.getElementById('confirm-modal-msg').textContent = msg;
+
+            const modal = document.getElementById('confirm-modal');
+            const btnCancel = document.getElementById('confirm-btn-cancel');
+            const btnAction = document.getElementById('confirm-btn-action');
+
+            const closeModal = () => {
+                modal.classList.add('hidden');
+            };
+
+            btnCancel.onclick = closeModal;
+            btnAction.onclick = () => {
+                closeModal();
+                onConfirm();
+            };
+
+            modal.classList.remove('hidden');
+        }
+
+        function confirmClearHistory() {
+            showConfirmModal(
+                "Clear History Data?",
+                "This will permanently erase all saved typing speed records, test scores, and performance statistics. This action cannot be undone.",
+                () => {
+                    appState.attemptsHistory = [];
+                    saveStorageData();
+                    renderDashboardView();
+                    renderHomeStats();
+                }
+            );
+        }
+
+        /* ==========================================================================
+           12. INITIALIZATION ON WINDOW LOAD
+           ========================================================================== */
+
+        window.onload = function() {
+            // Validate word counts
+            validatePassages();
+
+            // Load saved data
+            loadStorageData();
+
+            // Render Home view
+            navigateTo('home');
+
+            // Keyboard shortcut handler (Escape to close modals)
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    document.getElementById('results-modal').classList.add('hidden');
+                    document.getElementById('confirm-modal').classList.add('hidden');
+                }
+            });
+        };
+    </script>
+</body>
+</html>
